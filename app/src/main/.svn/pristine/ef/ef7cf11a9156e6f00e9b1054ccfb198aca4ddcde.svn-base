@@ -1,0 +1,124 @@
+package com.example.myapplication.user_interface.pendingtask;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.app.ProgressDialog;
+import android.graphics.Typeface;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.myapplication.R;
+import com.example.myapplication.database.DatabaseManager;
+import com.example.myapplication.dlist.DList;
+import com.example.myapplication.dynamicbutton.DynamicButton;
+import com.example.myapplication.dynamicbutton.DynamicButtonAdapter;
+import com.example.myapplication.helper.SharedPrefManager;
+import com.example.myapplication.user_interface.forms.controller.FieldHelper;
+import com.example.myapplication.user_interface.forms.controller.FormFragment;
+import com.example.myapplication.user_interface.forms.controller.ResponseInterface;
+import com.example.myapplication.user_interface.forms.model.Field;
+import com.example.myapplication.user_interface.forms.model.Form;
+import com.example.myapplication.user_interface.forms.model.OptionModel;
+import com.example.myapplication.util.Constant;
+import com.example.myapplication.util.DateUtil;
+import com.example.myapplication.util.DialogUtil;
+import com.example.myapplication.util.NetworkUtil;
+import com.example.myapplication.util.ToastUtil;
+import com.example.myapplication.util.VolleyErrorUtil;
+import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PendingTaskDetailsActivity extends AppCompatActivity {
+
+    private static final String DEBUG_TAG = PendingTaskDetailsActivity.class.getName();
+    private String FORM_ID = "";
+    private int RECORD_ID = 0;
+    private String MODULE = "";
+    private String  USERNAME = "";
+    private String FORM_NAME = "";
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_pending_task_details);
+        overridePendingTransition( R.anim.enter_from_right, R.anim.exit_to_left);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            FORM_ID = String.valueOf(bundle.getInt(Constant.EXTRA_FORM_ID));
+            RECORD_ID = bundle.getInt(Constant.EXTRA_RECORD_ID);
+            MODULE = bundle.getString(Constant.EXTRA_MODULE);
+            USERNAME = bundle.getString(Constant.EXTRA_USER_NAME);
+            FORM_NAME = bundle.getString(Constant.EXTRA_FORM_NAME);
+
+            SharedPrefManager prefManager = new SharedPrefManager(this);
+            String chartId = prefManager.getString(FORM_ID);
+
+            Bundle args = new Bundle();
+            args.putString(Constant.EXTRA_TITLE, FORM_NAME);
+            args.putString(Constant.EXTRA_FORM_ID, FORM_ID);
+            args.putString(Constant.EXTRA_CHART_ID, chartId);
+            args.putString(Constant.EXTRA_RECORD_ID, String.valueOf(RECORD_ID));
+            args.putString(Constant.EXTRA_ENTRY,"pending_task");
+
+            Fragment fragment = new FormFragment(communicatorInterface);
+            fragment.setArguments(args);
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.pending_task_content_frame, fragment).commit();
+        }
+        setActionBar();
+    }
+
+    private void setActionBar(){
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if(item.getItemId() == android.R.id.home){
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.enter_from_left, R.anim.exit_to_right);
+    }
+
+    FormFragment.CommunicatorInterface communicatorInterface = new FormFragment.CommunicatorInterface() {
+        @Override
+        public void respond() {
+            onBackPressed();
+        }
+    };
+
+}

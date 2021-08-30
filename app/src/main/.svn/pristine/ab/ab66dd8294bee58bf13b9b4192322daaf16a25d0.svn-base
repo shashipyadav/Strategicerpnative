@@ -1,0 +1,182 @@
+package com.example.myapplication.dlist;
+
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.util.SparseBooleanArray;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.myapplication.R;
+import com.example.myapplication.util.Constant;
+import com.example.myapplication.util.PixelUtil;
+import java.util.ArrayList;
+import java.util.List;
+
+public class DListRecyclerAdapter extends
+        RecyclerView.Adapter<DListRecyclerAdapter.ViewHolder>{
+
+    private Context context;
+    private  List<DListItem> list;
+    private int mDlistButtonArrayPosition = -1;
+    private int mDlistItemPosition = -1;
+    private String mFieldId;
+    private CheckBoxListener listener;
+    private SparseBooleanArray selectedItems;
+
+    public interface CheckBoxListener{
+        void onCheckBoxClicked(int position);
+    }
+
+    public DListRecyclerAdapter(Context context, List<DListItem> list, String fieldId,
+                                int dlistButtonArrayPosition, int dlistItemPosition,CheckBoxListener listener) {
+        this.context = context;
+        this.list = list;
+        this.mFieldId = fieldId;
+        this.mDlistButtonArrayPosition = dlistButtonArrayPosition;
+        this.mDlistItemPosition = dlistItemPosition;
+        this.selectedItems = new SparseBooleanArray();
+        this.listener = listener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_dlist_field, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+        final List<DList> dListsFields = list.get(position).getDlistArray();
+        holder.bind(dListsFields);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                Intent intent = new Intent(context, DListFormActivity.class);
+
+                // Field object which has the dlist object
+                bundle.putSerializable(Constant.EXTRA_FIELD_ID, mFieldId);
+
+                // position of dlist button array list in initial field list array
+                bundle.putInt(Constant.EXTRA_DLIST_BUTTON_POSITION, mDlistButtonArrayPosition);
+                bundle.putInt(Constant.EXTRA_DLIST_ITEM_POSITION,mDlistItemPosition);
+
+                // position of dlistfield row in list array
+                bundle.putInt(Constant.EXTRA_DLIST_ROW_POSITION,position);
+                bundle.putString(Constant.EXTRA_MODE,"");
+           //   bundle.putSerializable(Constant.EXTRA_DLIST_ARRAY, (Serializable) dListsFields); // list of dlistfield at a particular position
+           //   bundle.putSerializable(Constant.EXTRA_LIST_OF_DLIST, (Serializable) list);
+                intent.putExtras(bundle);
+                context.startActivity(intent);
+            }
+        });
+
+        //in some cases, it will prevent unwanted situations
+        holder.mCheckBox.setOnCheckedChangeListener(null);
+        holder.mCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onCheckBoxClicked(position);
+            }
+        });
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemCount() {
+        return list.size();
+    }
+
+    public void toggleSelection(int pos) {
+        if (selectedItems.get(pos, false)) {
+            selectedItems.delete(pos);
+        }else {
+            selectedItems.put(pos, true);
+        }
+        notifyItemChanged(pos);
+    }
+
+    public void clearSelection(){
+        selectedItems.clear();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).isSelected()) {
+                list.get(i).setSelected(false);
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+
+    public void removeData(int position) {
+        list.remove(position);
+        notifyItemRemoved(position);
+        notifyDataSetChanged();
+    }
+
+    public int getSelectedItemCount() {
+        return selectedItems.size();
+    }
+
+    public List<Integer> getSelectedItems(){
+        List<Integer> items =
+                new ArrayList<Integer>(selectedItems.size());
+        for(int i = 0; i < selectedItems.size(); i++){
+            items.add(selectedItems.keyAt(i));
+        }
+        return items;
+    }
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder{
+
+        private  LinearLayout mLinearLayout;
+        CheckBox mCheckBox;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mLinearLayout = itemView.findViewById(R.id.linearLayout);
+            mCheckBox = itemView.findViewById(R.id.checkbox);
+        }
+
+        public void bind(List<DList> dListsFields){
+
+            for(int k = 0; k < dListsFields.size(); k++){
+                String fieldName = dListsFields.get(k).getFieldName();
+                String value = dListsFields.get(k).getValue();
+                boolean isHidden = dListsFields.get(k).isHidden();
+
+                Typeface typeface = ResourcesCompat.getFont(context, R.font.montserrat);
+                TextView tv = new TextView(context);
+             //   if(!fieldName.isEmpty()){
+                if(!isHidden){
+                        tv.setText(value);
+                        tv.setPadding(20,20,20,20);
+                        tv.setTextSize(16);
+                        tv.setTypeface(typeface);
+                        tv.setWidth(PixelUtil.convertDpToPixel(context, 150f));
+                        tv.setTextColor(context.getResources().getColor(R.color.colorPrimary));
+                        tv.setBackground(context.getResources().getDrawable(R.drawable.cell_shape_light_bg));
+                        tv.setGravity(Gravity.CENTER);
+                    tv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
+                    mLinearLayout.addView(tv);
+                    }
+                }
+            }
+        }
+    }
+

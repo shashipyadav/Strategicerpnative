@@ -1,0 +1,142 @@
+package com.example.myapplication.helper;
+
+import android.content.Context;
+import android.text.InputType;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+import com.example.myapplication.R;
+
+import java.util.Random;
+
+public class MyViews {
+
+    private Context context;
+
+    public MyViews(Context context) {
+        this.context = context;
+    }
+
+    public TextView addTextView(String fieldName) {
+        TextView textView1 = new TextView(context);
+        textView1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.
+                LayoutParams.MATCH_PARENT, // width
+                LinearLayout.LayoutParams.WRAP_CONTENT)); // height
+        //   textView1.setTextSize(12);
+        textView1.setText(fieldName);// hex color 0xAARRGGBB
+        textView1.setPadding(20, 20, 20, 0); // in pixels (left, top, right, bottom)
+//        Typeface _font=Typeface.createFromAsset(getActivity().getAssets(), "fonts/OpenSans-Regular.ttf");
+//        tv.setTypeface(_font);
+
+        return textView1;
+    }
+
+    public EditText addEditText(String dataType,int fieldId,String defaultValue) {
+
+        int inputType = InputType.TYPE_CLASS_TEXT;
+        if (dataType.equals("TEXT")) {
+            inputType = InputType.TYPE_CLASS_TEXT;
+        } else if (dataType.equals("TEXTAREA")) {
+            inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+        } else if (dataType.equals("Number") || dataType.equals("DOUBLE")) {
+            inputType = InputType.TYPE_CLASS_NUMBER;
+        } else if (dataType.equals("DATE")) {
+            inputType = InputType.TYPE_CLASS_DATETIME;
+        }
+
+        final EditText editText = new EditText(context);
+        editText.setText(defaultValue);
+        editText.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.
+                LayoutParams.MATCH_PARENT, // width
+                LinearLayout.LayoutParams.WRAP_CONTENT)); // height
+        editText.setId(fieldId);
+        editText.setInputType(inputType);
+        editText.setTextSize(15);
+        Random random = new Random();
+        int mDefaultValue = random.nextInt(500);
+
+     //   editText.setText(String.valueOf(mDefaultValue));
+        editText.setText(String.valueOf(400));
+        if (dataType.equals("TEXTAREA")) {
+            editText.setGravity(View.TEXT_ALIGNMENT_TEXT_START);
+            editText.setLines(5);
+            editText.setBackground(context.getResources().getDrawable(R.drawable.edit_text_border));
+        }
+
+        if (dataType.equals("DATE")) {
+            editText.setFocusable(false);
+            editText.setCursorVisible(false);
+            editText.setClickable(true);
+        }
+        //editText.setPadding(20, 20, 20, 20); // in pixels (left, top, right, bottom)
+        // parentLayout.addView(editText);
+
+        return editText;
+    }
+
+    public Spinner addSpinner(int fieldId) {
+        Spinner spinner = new Spinner(context);
+        spinner.setId(fieldId);
+        spinner.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.
+                LayoutParams.MATCH_PARENT, // width
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        final String[] personNames = {"Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7"};
+        ArrayAdapter arrayAdapter = new ArrayAdapter(context,
+                android.R.layout.simple_spinner_item, personNames);
+        spinner.setAdapter(arrayAdapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(context, " " + personNames[position], Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        return spinner;
+    }
+
+    public LinearLayout addButtonSave(){
+
+        LinearLayout linButonLayout = new LinearLayout(context);
+        int weightSum = 2;
+        linButonLayout.setWeightSum(weightSum);
+        for(int i =0; i<weightSum; i++) {
+            LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            params1.setMargins(0, 40,
+                    8, 0);
+            params1.weight = 1.0f;
+            Button button = new Button(context);
+            button.setLayoutParams(params1);
+            button.setBackgroundColor(context.getResources().getColor(R.color.light_grey));
+            button.setTextColor(context.getResources().getColor(android.R.color.black));
+            button.setPadding(8,0,8,0);
+            button.setMinimumHeight(0);
+            button.setMinimumWidth(0);
+            button.setHeight(100);
+            button.setTextSize(12);
+
+            if(i == 0){
+                button.setText("Add More");
+                button.setId(R.id.button_add_more);
+                linButonLayout.addView(button);
+            }else{
+                button.setText("Save");
+                button.setId(R.id.button_save);
+                linButonLayout.addView(button);
+            }
+        }
+
+        return linButonLayout;
+    }
+}

@@ -1,0 +1,44 @@
+package com.example.myapplication.user_interface.forms.controller;
+
+import android.content.Context;
+import android.util.Log;
+import com.example.myapplication.dlist.DList;
+import com.example.myapplication.dlist.DListItem;
+import com.example.myapplication.helper.SharedPrefManager;
+import com.example.myapplication.user_interface.forms.model.Field;
+import com.example.myapplication.user_interface.forms.model.Form;
+
+import java.util.List;
+
+public class FieldHelper {
+    private static final String DEBUG_TAG = FieldHelper.class.getSimpleName();
+    public SharedPrefManager mPrefManager;
+
+    public FieldHelper(Context context) {
+        mPrefManager = new SharedPrefManager(context.
+                getApplicationContext());
+    }
+
+    /**
+     *
+     * @param condition is the default value of that particular field.
+     * @return if the condition has self,username  or login returns user's login name,  otherwise returns the condition.
+     */
+    public String getValue(String condition) {
+        if (condition.toLowerCase().
+                matches("\\$\\{self\\}|\\$\\{username\\}|\\$\\{login\\}|\\$username|\\$self|self")) {
+            return mPrefManager.getUserName();
+        }else if(condition.toLowerCase().matches("location\\$location|location|auto|sql")){
+            return "";
+        } else {
+            return condition;
+        }
+    }
+
+    public static String replaceUpdatetview(String onChange) {
+        //. = non word characters i.e ',
+        String regex = "updatetview\\((\\'[0-9]+)\\'\\,\\'(([0-9]{1,}\\/)+\\')\\,\\'(?:[A-Z]{1,}\\s[A-Z]{1,}|[A-Z]{1,}|[A-Z]{1,}\\W)\\'\\,\\'[A-Za-z\\s]+...[A-Za-z].+\\)\\;";
+        onChange = onChange.replaceAll(regex, "");
+        return onChange;
+    }
+}

@@ -1,0 +1,146 @@
+package com.example.myapplication.dlist;
+
+import android.content.Context;
+import android.util.Log;
+
+import com.example.myapplication.helper.SharedPrefManager;
+import com.example.myapplication.user_interface.forms.controller.FieldHelper;
+import com.example.myapplication.user_interface.forms.controller.FormFragment;
+import com.example.myapplication.user_interface.forms.model.Field;
+import com.example.myapplication.user_interface.forms.model.Form;
+
+import java.util.List;
+
+public class DListFieldHelper {
+
+    private static final String DEBUG_TAG = FieldHelper.class.getSimpleName();
+    public SharedPrefManager mPrefManager;
+
+    public DListFieldHelper(Context context) {
+        mPrefManager = new SharedPrefManager(context.
+                getApplicationContext());
+    }
+
+    /**
+     * Method to update the no of rows a particular dlist has.
+     * contentrows is needed for checkSave() function and for validating dlist
+     * @param fieldId id of the field which has a dlist
+     * @param rows    no of rows in the dlist
+     */
+    public void updateContentRows(String fieldId, int rows) {
+    //    for (int i = 0; i < FormFragment.fieldsList.size(); i++) {
+        if(fieldId.contains("field")){
+            fieldId = fieldId.split("field")[1];
+        }
+
+        if(FormFragment.dlistArrayPosition != - 1) {
+            Field mObj = FormFragment.fieldsList.get(FormFragment.dlistArrayPosition);
+            Log.e(DEBUG_TAG, "updateContentRows = " + fieldId);
+            if (!mObj.getdListArray().isEmpty()) {
+
+                List<Field> dlistArray = mObj.getdListArray();
+                for (int j = 0; j < dlistArray.size(); j++) { // will loop through the dlistbuttonArray
+
+                    Field dlist = dlistArray.get(j); // sindle dlist Item
+                    if(dlist.getId().equals("field"+fieldId)){
+
+                        List<DList> dlistFields = dlist.getdListsFields();
+
+                        //loop through dlist title - zeroth row
+                        for (int k = 0; k < dlistFields.size(); k++) {
+                            DList dobj = dlistFields.get(k);
+
+                            if (dobj.getId().equals("contentrows" + fieldId)) {
+                                StringBuilder value = new StringBuilder(",");
+                                for (int x = 1; x <= rows; x++) {
+                                    value.append(x).append(",");
+                                }
+                                Log.e(DEBUG_TAG, "updateContentRows   value = " + String.valueOf(value));
+                                dobj.setValue(String.valueOf(value));
+
+                                break;
+                            }
+
+                        }
+                    }
+
+                }
+            }
+        }
+
+
+
+       // }
+    }
+
+
+    public static String getContentRows(String fieldId){
+
+        String[] arr = fieldId.split("field");
+
+        String contentRows = "";
+        try{
+            int position = FormFragment.dlistArrayPosition;
+            Field mObj = FormFragment.fieldsList.get(position);
+            if (!mObj.getdListArray().isEmpty()) {
+                List<Field> dlistArray = mObj.getdListArray();
+
+                for (int j = 0; j < dlistArray.size(); j++) { // will loop through the dlistbuttonArray
+                    Field dlist = dlistArray.get(j); // sindle dlist Item
+                    List<DList> dlistFields = dlist.getdListsFields();
+
+                    //loop through dlist title - zeroth row
+                    for (int k = 0; k < dlistFields.size(); k++) {
+                        DList dobj = dlistFields.get(k);
+
+                        if (dobj.getId().equals("contentrows" + arr[1])) {
+                            Log.e(DEBUG_TAG, "getContentRows value = " + dobj.getValue());
+                            contentRows =  dobj.getValue();
+                        }
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return contentRows;
+    }
+
+    /**
+     * Method to get the value of a certain dlist field
+     * @param fieldId  is the fieldId of the field which has dlistArray,
+     * @param dlistFieldId is the id of the field inside the dlistarray for eg. field12345_0
+     * @param extension is the position of the dlistfield object inside the list. it always start with 1
+     * @return the value of dlistfield
+     */
+    public static String getDlistFieldValue(String fieldId, String dlistFieldId,String extension){
+        String value = "";
+
+        int dlistFieldPosition = FormFragment.dlistArrayPosition;
+        first:
+        // will loop through the dlistbuttonArray
+        for (int m = 0; m < FormFragment.fieldsList.get(dlistFieldPosition).getdListArray().size(); m++) {
+            Field mObj = FormFragment.fieldsList.get(dlistFieldPosition).getdListArray().get(m);
+            if(mObj.getId().equals("field"+fieldId)){
+
+                // sindle dlist Item
+                List<DListItem> dlistFields = mObj.getDListItemList();
+
+                for (int k = 0; k < dlistFields.size(); k++) {
+                    List<DList> dlistRowArray = dlistFields.get(k).getDlistArray();
+
+                    for(int x = 0; x <dlistRowArray.size();x++){
+
+                        DList dobj = dlistRowArray.get(x);
+                        if (dobj.getId().equals("field" + dlistFieldId + "_" + extension)) {
+                            value = dobj.getValue();
+                            Log.e(DEBUG_TAG, "getDlistFieldValue  " + "dlist field = " + dobj.getId() + " value = " + dobj.getValue());
+                            break first;
+                        }
+                    }
+                }
+            }
+        }
+        return  value;
+    }
+}

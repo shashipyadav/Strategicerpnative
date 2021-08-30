@@ -1,0 +1,899 @@
+package com.example.myapplication.function;
+
+import android.content.Context;
+import android.util.Log;
+
+import com.example.myapplication.dlist.DListFormActivity;
+import com.example.myapplication.dlist.DListItem;
+import com.example.myapplication.user_interface.forms.controller.FormFragment;
+import com.example.myapplication.helper.SharedPrefManager;
+import com.example.myapplication.dlist.DList;
+import com.example.myapplication.user_interface.forms.model.Field;
+
+import java.util.List;
+
+public class DlistFunctionHelper {
+
+    private static int dcombocounter = 0;
+    Context context;
+    private SharedPrefManager mPrefManager;
+
+
+    public DlistFunctionHelper(Context mContext) {
+        this.context = mContext;
+        mPrefManager = new SharedPrefManager(context.getApplicationContext());
+    }
+
+
+    public  String load(int fieldid, List<String> oArr, Boolean issql, String extension,
+                        String jcodelist, String fieldtype, Boolean mdcombo)
+    {
+      //  loadfields(fieldid, oArr, issql, extension, jcodelist, mdcombo);
+
+
+        String oTxt = "field" + fieldid + extension;
+        if (issql == true) {
+            String jidlist = jcodelist;
+            if (!jcodelist.equals("")) {
+
+                //   jcodelist = replacesqllistapp(fieldid, extension, jcodelist, true);
+                //String func, String extension, String fieldValue,List<Field> fieldsList
+                jcodelist = replacesqllistappNew(String.valueOf(fieldid),"",extension,jcodelist,
+                        true);
+                jcodelist = jcodelist.replace("/\"+/g", "%2B");
+                jcodelist = jcodelist.replace("/\"&/g", "%26");
+                dcombocounter = 1;
+                String filtervalue = ("field" + fieldid + extension).replace("/\"%/g", "");
+                if (mdcombo) {
+                    double randomnumber =  Math.floor(Math.random()*1111);
+                    String s = mPrefManager.getClientServerUrl() +
+                            "SaveFormField.do?actn=retrieveDComboList&cloudcode="+mPrefManager.getCloudCode()+"&token="+mPrefManager.getAuthToken()+"&extension="+extension
+                            + "&jcodelist="+jcodelist
+                            + "&jidlist=" +jidlist
+                            + "&filtervalue="  // + filtervalue
+                            + "&ask=COMMAND_NAME_1"
+                            + "random="+randomnumber;
+                    return s;
+
+                    //      retrieveMDComboValue("https://best-erp.com:9000/strategicerp/"+"SaveFormField.do?actn=retrieveDComboList&cloudcode="+window.cloudcode+"&token="+window.token,extension,jcodelist,jidlist,filtervalue,"COMMAND_NAME_1","reportForm1",oTxt);
+
+                } else {
+                    //      retrieveDCombo("https://best-erp.com:9000/strategicerp/"+
+                    //      "SaveFormField.do?actn=retrieveDComboList&cloudcode="+window.cloudcode+"&token="+window.token+"&extension="+extension+"&jcodelist="+jcodelist+"&jidlist="+jidlist+"&filtervalue="+filtervalue+"&ask=COMMAND_NAME_1","reportForm1",oTxt);
+
+                   //changing extension from _1,_2 to _0
+                    extension = "_0";
+                    String s = retrieveDCombo(mPrefManager.getClientServerUrl()
+                            + "SaveFormField.do?actn=retrieveDComboList&extension=" + extension
+                            + "&jcodelist=" + jcodelist
+                            + "&jidlist=" + jidlist
+                            + "&filtervalue="
+                            + filtervalue + "&ask=COMMAND_NAME_1&cloudcode="+mPrefManager.getCloudCode()+"&token="+mPrefManager.getAuthToken(), "reportForm1", oTxt);
+                    return s;
+                }
+            }
+
+        } else {//if not sql
+            //alert(oTxt+"=="+oArr);
+           /* if(find(oTxt) && document.getElementById(oTxt)){
+                String fvalue = document.getElementById(oTxt).value;
+                    String[] arrs = fvalue.split(", ");
+                    fvalue = arrs[arrs.length];
+                }
+                //alert(mdcombo+"=="+fvalue);
+                String[] oArr1;
+                int n = oArr.size();
+                int j=0;
+                for(int i=0;i<n;i++)
+                {
+                    if(oArr.get(i).toLowerCase().indexOf(fvalue.toLowerCase())>-1){
+                        oArr1.push(oArr[i]);
+                        j++;
+                    }
+                    if(j>20)break;
+                }
+
+                var oTextbox = new AutoSuggestControl(document.getElementById(oTxt), new StateSuggestions(oArr1));
+                oTextbox.provider.requestSuggestionsonclick(oTextbox, true);*/
+        }
+        return oTxt;
+    }
+
+
+    private static String retrieveDCombo(String s, String reportForm1, String oTxt) {
+        Double randomnumber = Math.floor(Math.random() * 1111);
+        s = s + "&random=" + randomnumber;//+getFormAsString(nameOfFormToPost);
+
+        Log.e("url", s);//alert(url);
+        return s;
+    }
+
+    public String replacesqllistappNew(String fieldid, String fieldValue,
+                                       String extension, String jcodelist,
+                                       boolean includeself)
+    {
+        try {
+            String jidlist = jcodelist;
+
+            if (!jcodelist.equals("")) {
+                String[] jarr = jcodelist.split(";");
+                jcodelist = "";
+
+                for (int j = 0; j < jarr.length; j++) {
+                    String func = jarr[j];
+                    String[] jarr2 = func.split("@@");
+                    String jid = jarr2[0];
+                    String[] jarr3 = jarr2[1].split("/");
+                    String jvals = "";
+
+                    for (int j3 = 0; j3 < jarr3.length; j3++) {
+                        if (jarr3[j3].equals("ERROR")) {
+                            Log.e("replacesqllistapp", "There is a small ERROR in SQL query of this field.");
+                            break;
+                        }
+
+                        String midlist = "";
+                        for(int i=0;i< FormFragment.additionalFieldDataList.size(); i++){
+                            Field fobj = FormFragment.additionalFieldDataList.get(i);
+                            if(fobj.getName().toLowerCase().equals("mandatory")){
+                                midlist = fobj.getValue();
+                                break;
+                            }
+                        }
+
+                        boolean dostop = midlist.indexOf(jarr3[j3] + "/") == 0 ||
+                                midlist.contains("/" + jarr3[j3] + "/") ||
+                                midlist.contains("_" + jarr3[j3] + "/") ||
+                                midlist.contains("_" + jarr3[j3] + extension + "/");
+
+                        DList fieldObj1 = null;
+                        boolean isObjFound = false;
+                        for (int i = 0; i < DListFormActivity.dlistFieldValues.size(); ++i) {
+                            fieldObj1 = DListFormActivity.dlistFieldValues.get(i);
+                            String id = "field" + jarr3[j3]+extension;
+                            if (id.equals(fieldObj1.getId())) // field found
+                            {
+                                isObjFound = true;
+                                break;
+                            }
+                        }
+
+                        //Todo : have to call functions for hidden fields as well in dlistfieldrecycleradaoter.
+                        Field fieldObj2 = null;
+                        if(!isObjFound){
+                            fieldObj1 = null;
+                            for (int i = 0; i < FormFragment.fieldsList.size(); ++i) {
+                                fieldObj2 = FormFragment.fieldsList.get(i);
+                                String id = "field" + jarr3[j3];
+                                if (id.equals(fieldObj2.getId())) // field found
+                                {
+                                    isObjFound = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(!isObjFound){
+                            if(jarr3[j3].trim().equalsIgnoreCase("id")){
+                                fieldObj1 = new DList();
+                                fieldObj1.setValue("0");
+                                if(fieldObj1 == null){
+                                    fieldObj2 = new Field();
+                                    fieldObj2.setValue("0");
+                                }
+                                isObjFound = true;
+                            }
+                        }
+
+                        if (isObjFound) {
+                            String fValue ="";
+                            String fType = "";
+
+                            if(fieldObj1 != null){
+                                fValue = fieldObj1.getValue().trim();
+                                fType = fieldObj1.getType();
+                            }else{
+                                fValue = fieldObj2.getValue().trim();
+                                fType = fieldObj2.getDataType();
+                            }
+
+                            if ((!dostop) || (!fValue.equals(""))
+                                    || (jarr3[j3].equals(jid))){
+
+                                if (jarr3[j3].equals(jid) && !includeself) {
+                                    jvals = jvals + "" + "@j@";
+                                } else {
+                                    String valuee = fValue;
+                                    if (fType.toLowerCase().equals("checkbox")) {
+                                        //  valuee=$(obj).is(':checked');
+                                        valuee=fValue;
+                                        //  valuee = fieldObj.getInputValueByUser();
+                                    }
+                                    if (valuee.contains("   ---")) {
+                                        valuee = valuee.split("   ---")[0];
+                                        valuee = valuee.trim();
+                                    }
+//                                    Pattern pattern0 = Pattern.compile("^(\\d{4})(\\|-)(\\d{1,2})(\\|-)(\\d{1,2})T(\\d{1,2})(\\:)(\\d{1,2})$");
+//                                    Matcher matcher0 = pattern0.matcher(valuee);
+//                                    //checking for a date value here
+//                                    if(matcher0.matches())
+//                                    {
+//                                        String[] tempp1=valuee.split("T");
+//                                        String tempp2=tempp1[0];
+//                                        String tempp3=tempp1[1];
+//
+//                                        String newvalue=valuee;
+//
+//                                        if(tempp2.indexOf("-")>-1 && !(tempp2.indexOf("/") >-1))
+//                                        {
+//                                            String[] tempp4=tempp2.split("-");
+//                                            newvalue=tempp4[2]+"/"+tempp4[1]+"/"+tempp4[0]+" "+tempp3;
+//                                        }
+//                                        valuee=newvalue;
+//                                    }
+
+                                    //checking for a date value here as well
+//                                    Pattern pattern1 = Pattern.compile("^(\\d{4})(\\|-)(\\d{1,2})(\\|-)(\\d{1,2})T(\\d{1,2})(\\:)(\\d{1,2})$");
+//                                    Matcher matcher1 = pattern1.matcher(valuee);
+//                                        if(matcher1.matches())
+//                                        {
+//                                            String[] tempp1=valuee.split("T");
+//                                            String tempp2=tempp1[0];
+//                                            String tempp3=tempp1[1];
+//
+//                                            String newvalue=valuee;
+//
+//                                            if(tempp2.indexOf("-")>-1 && !(tempp2.indexOf("/") >-1))
+//                                            {
+//                                                String[] tempp4=tempp2.split("-");
+//                                                newvalue=tempp4[2]+"/"+tempp4[1]+"/"+tempp4[0]+" "+tempp3;
+//                                            }
+//                                            valuee=newvalue;
+//                                        }
+                                    EncodeURIEngine uriEngine = new EncodeURIEngine();
+                                    valuee = uriEngine.encodeURIComponent(valuee);
+                                   // Log.e("value after encoding", "EncodeURIEngine =" + valuee);
+                                    valuee = valuee.replaceAll("\\+", "%2B");
+                                    valuee = valuee.replaceAll("&", "%26");
+
+                                    jvals = jvals + valuee + "@j@";
+                                   // Log.e("jvals", "line #388");
+                                   // Log.e("----", jvals);
+                                }
+                            } else {
+                                String[] arr1 = func.split("@@");
+                                func = "";
+                                jvals = "";
+                                break;
+                            }
+                        } else if (jarr3[j3].equals("self")) {
+                            jvals = jvals + "self" + "@j@";
+                        } else {
+                            jvals = "";
+                            break;
+                        }
+
+                    }//end of for jarr3
+                    jcodelist = jcodelist + jvals + "@jj@";
+                }//end of for jarr
+                Log.e("final jcodeList", jcodelist);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            //Added this because list wasn't showing Product List
+            String jvals = "";
+            jcodelist = jcodelist + jvals + "@jj@";
+        }
+        return jcodelist;
+    }
+
+
+    ///old one
+//    public String replacesqllistappNew(String fieldid, String fieldValue,
+//                                       String extension, String jcodelist,
+//                                       boolean includeself)
+//    {
+//        List<DList> dlist = DListFormActivity.dlistFieldValues;
+//
+//        String jidlist = jcodelist;
+//
+//        if (!jcodelist.equals("")) {
+//            String[] jarr = jcodelist.split(";");
+//            jcodelist = "";
+//
+//            for (int j = 0; j < jarr.length; j++){
+//                String func = jarr[j];
+//                String[] jarr2 = func.split("@@");
+//                String jid = jarr2[0];
+//                String[] jarr3 = jarr2[1].split("/");
+//                String jvals = "";
+//
+//                for (int j3 = 0; j3 < jarr3.length; j3++) {
+//                    if (jarr3[j3].equals("ERROR")) {
+//                        Log.e("replacesqllistapp", "There is a small ERROR in SQL query of this field.");
+//                        break;
+//                    }
+//
+//                    String midlist = "";
+//                    for(int i=0;i< FormFragment.additionalFieldDataList.size(); i++){
+//                        Field fobj = FormFragment.additionalFieldDataList.get(i);
+//                        if(fobj.getName().toLowerCase().equals("mandatory")){
+//                            midlist = fobj.getValue();
+//                            break;
+//                        }
+//
+//                    }
+//
+//                    boolean dostop = midlist.indexOf(jarr3[j3] + "/") == 0 ||
+//                            midlist.contains("/" + jarr3[j3] + "/") || midlist.contains("_" + jarr3[j3] + "/") ||
+//                            midlist.contains("_" + jarr3[j3] + extension + "/");
+//
+//                    DList fieldObj1 = null;
+//                    boolean isObjFound = false;
+//
+//                    for(int i=0;i<dlist.size(); i++){
+//                            fieldObj1 = dlist.get(i);
+//                            String id = "field" + jarr3[j3]+extension;
+//
+//                            if (id.equals(fieldObj1.getId())) // field found
+//                            {
+//                                Log.e("DList"," line # 154 replacesqllistappNew"+ fieldObj1.getId());
+//                                Log.e("DList"," line # 155 replacesqllistappNew"+ fieldObj1.getValue());
+//                                isObjFound = true;
+//                                break;
+//                            }
+//                        }
+//
+//
+//                    if(isObjFound){
+//
+//                        if ((!dostop || !fieldObj1.getValue().trim().equals(""))
+//                                || jarr3[j3].equals(jid)) {
+//
+//                            if (jarr3[j3].equals(jid) && !includeself) {
+//                                jvals = jvals + "" + "@j@";
+//                                Log.e("jvals", "331");
+//                                Log.e("----",jvals);
+//                            } else {
+//                                Log.e("line172 = ","fieldId "+fieldObj1.getId());
+//                                String valuee = fieldObj1.getValue();
+//                                if (fieldObj1.getType().toLowerCase().equals("checkbox")) {
+//                                    //  valuee=$(obj).is(':checked');
+//                                    //  valuee=valuee.toString();
+//
+//                                    //  valuee = fieldObj.getInputValueByUser();
+//                                }
+//
+//                                if (valuee.contains("   ---")) {
+//                                    valuee = valuee.split("   ---")[0];
+//                                    valuee = valuee.trim();
+//                                }
+////                                    Pattern pattern0 = Pattern.compile("^(\\d{4})(\\|-)(\\d{1,2})(\\|-)(\\d{1,2})T(\\d{1,2})(\\:)(\\d{1,2})$");
+////                                    Matcher matcher0 = pattern0.matcher(valuee);
+////                                    //checking for a date value here
+////                                    if(matcher0.matches())
+////                                    {
+////                                        String[] tempp1=valuee.split("T");
+////                                        String tempp2=tempp1[0];
+////                                        String tempp3=tempp1[1];
+////
+////                                        String newvalue=valuee;
+////
+////                                        if(tempp2.indexOf("-")>-1 && !(tempp2.indexOf("/") >-1))
+////                                        {
+////                                            String[] tempp4=tempp2.split("-");
+////                                            newvalue=tempp4[2]+"/"+tempp4[1]+"/"+tempp4[0]+" "+tempp3;
+////                                        }
+////                                        valuee=newvalue;
+////                                    }
+//
+//                                //checking for a date value here as well
+////                                    Pattern pattern1 = Pattern.compile("^(\\d{4})(\\|-)(\\d{1,2})(\\|-)(\\d{1,2})T(\\d{1,2})(\\:)(\\d{1,2})$");
+////                                    Matcher matcher1 = pattern1.matcher(valuee);
+////                                        if(matcher1.matches())
+////                                        {
+////                                            String[] tempp1=valuee.split("T");
+////                                            String tempp2=tempp1[0];
+////                                            String tempp3=tempp1[1];
+////
+////                                            String newvalue=valuee;
+////
+////                                            if(tempp2.indexOf("-")>-1 && !(tempp2.indexOf("/") >-1))
+////                                            {
+////                                                String[] tempp4=tempp2.split("-");
+////                                                newvalue=tempp4[2]+"/"+tempp4[1]+"/"+tempp4[0]+" "+tempp3;
+////                                            }
+////                                            valuee=newvalue;
+////                                        }
+//                                EncodeURIEngine uriEngine = new EncodeURIEngine();
+//                                valuee = uriEngine.encodeURIComponent(valuee);
+//                                Log.e("value after encoding", "EncodeURIEngine =" + valuee);
+//                                valuee = valuee.replaceAll("\\+", "%2B");
+//                                valuee = valuee.replaceAll("&", "%26");
+//
+//                                jvals = jvals + valuee + "@j@";
+//                                Log.e("jvals", "390");
+//                                Log.e("----",jvals);
+//
+//                            }
+//
+//                        }
+//
+//                        else{
+//                            String[] arr1 = func.split("@@");
+//                            func = "";
+//                            jvals="";
+//                            break;
+//                        }
+//
+//                    }else if(jarr3[j3].equals("self")){
+//                        jvals = jvals + "self" + "@j@";
+//                    }
+//                    else{
+//                        jvals="";
+//                        break;
+//                    }
+//
+//                }//end of for jarr3
+//                jcodelist = jcodelist + jvals + "@jj@";
+//            }//end of for jarr
+//            Log.e("final jcodeList", jcodelist);
+//
+//        }
+//        return jcodelist;
+//    }
+
+
+
+
+    public String[] evaluateFunction(String fieldId, String functionlist,
+                                     String extension, String jcodelist,
+                                     String fieldValue, List<DList> dlist)
+    {
+
+        String[] fieldAndValue = new String[3];
+        try {
+
+            Log.e("EvaluateFunction", "");
+            Log.e("functionlist", functionlist);
+
+            if ((!fieldValue.contains("<")) && (!fieldValue.contains(">"))) // (trim(fieldValue,"")!='') &&
+            {
+                int i = 0;
+                int j = 0;
+                int sum = 0;
+                String sub = "", varid = "", varReplace = "";
+
+                while (functionlist.contains("&gt;")
+                        || functionlist.contains("&lt;")
+                        || functionlist.contains("&amp;")) {
+                    Log.e("Evaluate inside while", "start functionlist==" + functionlist);
+
+                    functionlist = functionlist.replace("&gt;", ">");//new RegExp( "[\\&gt;]", "g" ),">");
+                    functionlist = functionlist.replace("&lt;", "<");
+                    functionlist = functionlist.replace("&amp;", "&");
+                }
+
+                String[] arr = functionlist.split(";");
+                functionlist = "";
+                Log.e("arr.length", "arr.length==" + arr.length);
+                for (int m = 0; m < arr.length; m++) {
+
+                    Log.e("inside For", "func Index =" + String.valueOf(m));
+                    String func = arr[m];
+                    Log.e("func", "func==" + func);
+
+                    String arr1[] = func.split("@@");
+                    Log.e("arr1", arr1[0]);
+
+                    fieldAndValue = putfunctionvalues(func, extension, fieldValue, dlist);
+                }
+                String jidlist = "";
+                if (!jcodelist.equals("")) {
+                    String[] jarr = jcodelist.split(";");
+                    jcodelist = "";
+
+                    for (int ja = 0; ja < jarr.length; ja++) {
+                        String func = jarr[ja];
+                        String[] jarr2 = func.split("@@");
+                        String jid = jarr2[0];
+                        String[] jarr3 = jarr2[1].split("/");
+                        String jvals = "";
+                    }
+                }
+            }
+        }catch (IndexOutOfBoundsException e){
+            e.printStackTrace();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return  fieldAndValue;
+    }
+
+    public String evaluatesql(String fieldid, String extension,
+                              String jcodelist, String fieldValue, List<DList> dlist)
+    {
+        String finalURL = "";
+
+        String jidlist = jcodelist;
+
+        if ((fieldValue.equals(""))) {
+            //get #mandatory from additionalfields
+            String midlist = "";
+            for(int i=0;i< FormFragment.additionalFieldDataList.size(); i++){
+                Field fobj = FormFragment.additionalFieldDataList.get(i);
+                if(fobj.getName().toLowerCase().equals("mandatory")){
+                    midlist = fobj.getValue();
+                    break;
+                }
+
+            }
+            boolean dostop = midlist.indexOf(fieldid + "/") == 0 || midlist.contains("/" + fieldid + "/") || midlist.contains("_" + fieldid + "/");
+            if (dostop) return "";
+        }
+        if ((!fieldValue.contains("<")) && (!fieldValue.contains(">"))) {
+
+            jcodelist = replacesqllistappNew(fieldid, fieldValue, extension, jcodelist, true);
+            Log.e("jcodelist", jcodelist);
+
+            if (!jcodelist.equals("")) {
+                jcodelist = jcodelist.replaceAll("\\+", "%2B");
+                jcodelist = jcodelist.replaceAll("&", "%26");
+                Log.e("jcodelist after replace", jcodelist);
+
+                int randomnumber = (int) Math.floor(Math.random() * 1111);
+                finalURL = mPrefManager.getClientServerUrl() + "getFunction.do?actn=evaluatesql&extension=" + extension + "&jcodelist=" + jcodelist + "&jidlist=" + jidlist + "&ask=COMMAND_NAME_1" + "&random=" + randomnumber + "&cloudcode=" + mPrefManager.getCloudCode() + "&token=" + mPrefManager.getAuthToken() +"&type=json";
+                Log.e("evaluatesqlURL", finalURL);
+            }
+        }
+
+        return finalURL;// call api with the final URL
+    }
+
+    private String[] putfunctionvalues(String func, String extension,
+                                       String fieldValue, List<DList> dlist) {
+
+        String[] fieldAndValue = new String[3];
+
+        EvaluateEngine evaluateEngine = new EvaluateEngine();
+        func = replacefunctionvalues(func, extension, fieldValue, dlist);
+
+        String sum = "0";
+        if (!func.equals("")) {
+
+            Log.e("putfunctionvalues","func BEFORE REPLACE = "+func);
+            func = func.replaceAll("|", "");
+            func = func.replaceAll("[\r\n]", " ");
+
+            Log.e("putfunctionvalues","func aFTER REPLACE = "+func);
+
+            String[] arr1 = func.split("@@");
+            Log.e("putfunctionvalues", "arr1 = " + arr1.toString());
+            if (!arr1[1].contains("{x}") && !arr1[1].contains("{i}") &&
+                    !arr1[1].contains("&nbsp")) {
+                try {
+                    Log.e("Before passing to eval",String.valueOf(arr1[1]));
+//                    Object result = evaluateEngine.eval(arr1[1]);
+//
+//                    if (result instanceof  String){
+//                        sum = (String) evaluateEngine.eval(arr1[1]);
+//                    }else if (result instanceof  Double){
+//                        Double sResult = (Double) evaluateEngine.eval(arr1[1]);;
+//                        sum = String.valueOf(sResult);
+//                    }
+                    sum = evaluateEngine.eval(arr1[1]);
+                    fieldAndValue[0] = arr1[0];
+                    fieldAndValue[1] = sum;
+                    fieldAndValue[2] = arr1[2];
+
+                    Log.e("FieldAndValue", "Field = "+ fieldAndValue[0]+ "Value = "+ fieldAndValue[1]);
+                    Log.e("putfunctionvalues","sum="+sum);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e("There was an error", "on this page.\n\n");
+                    Log.e("Error description: ", e.getMessage() + "\n\n");
+                    sum = arr1.length > 2 ? arr1[2] : "";
+                }
+            } else {
+                sum = "0";
+            }
+        }
+        return fieldAndValue;
+    }
+
+    private String replacefunctionvalues(String func, String extension,
+                                         String fieldValue,List<DList> dlist) {
+
+        int i = 0, j = 0, sum = 0;
+        String sub = "", varid = "", varReplace = "";
+        boolean isdate = false;
+        int h = 0;
+
+        while (func.contains("${") && h < 100) {
+            h = h + 1;
+            i = func.indexOf("${");
+            sub = func.substring(i);
+            j = sub.indexOf("}");
+            varid = sub.substring(2, j);
+            Log.e("replacefunctionvalues","varid = "+varid);
+            varReplace = "${" + sub.substring(2, j) + "}";
+            Log.e("varReplace", varReplace);
+            //alert("52 h="+h+" varid=="+varid +" varReplace=="+varReplace+" extension=="+extension);
+
+            if (varid.equals("Id") || varid.equals("ID")) varid = "id";
+
+            if (varid.equals("state") || varid.equals("State") || varid.equals("STATE")) {
+                String vreplace = "";
+                //   if( document.getElementById('statefield'))
+                //       vreplace = document.getElementById('statefield').value; //not clear
+                if (vreplace.equals("")) vreplace = "0";
+                func = func.replace(varReplace, vreplace);
+                h = 0;
+            }
+            /*   else if(document.getElementById('field'+varid+extension)){} extension condition skipped for now*/
+            else {
+
+                for (int a = 0; a < dlist.size(); a++) {
+                    String id = "field" + varid;
+                    // String id = "field"+varid;
+
+                    if (dlist.get(a).getId().equals(id)) {
+
+                        Log.e("V.getId()", String.valueOf(dlist.get(a).getId()));
+                        Log.e("FIELD+ID", String.valueOf(id));
+
+                        if (dlist.get(a).getFieldType().equals("checkbox")) {
+//                            func = func.replace(varReplace,
+//                                    String.valueOf(((CheckBox) v).isChecked()));
+
+                            func = func.replace(varReplace,dlist.get(a).getValue() );
+                            Log.e("replacefunctionvalues","Type = checkbox");
+                            Log.e("checkbox func",func);
+                        } else {
+
+
+                            String vreplace = dlist.get(a).getValue();
+                            Log.e("Field Value", vreplace);
+
+                            int vlength = vreplace.length();
+
+                            //alert(vlenght+" func=="+func+" index=="+func.indexOf('"'));
+                            if ((vlength == 10 || vlength == 16) &&
+                                    vreplace.indexOf('/') == 2 &&
+                                    vreplace.lastIndexOf('/') == 5
+                                    && func.indexOf('|') < 0) {
+                                isdate = true;
+                            }
+
+                            if (vlength > 7 && vreplace.lastIndexOf(',') == (vlength - 7) && vreplace.lastIndexOf('.') == (vlength - 3))
+                                vreplace = vreplace.replaceAll("g,", "");
+                            else if (vlength > 8 && vreplace.lastIndexOf(',') == (vlength - 8) && vreplace.lastIndexOf('.') == (vlength - 4))
+                                vreplace = vreplace.replace("g,", "");
+
+                            func = func.replace(varReplace, vreplace);
+                            Log.e("not checkbox","func ="+func);
+
+                        }
+                        h = 0;
+                    }else{
+                        String[] arr1=func.split("@@");
+                        func="";
+                        Log.e("Alert, please contact"," ITAakash No field "+varid+ "found in function "+arr1[0]);
+                    }
+                }
+            }
+
+            if(isdate)
+            {
+                evaluatedate(func,extension);
+                return "";
+            }
+
+        }
+        Log.e("replacefuncvalues","returned func "+func);
+        return func;
+    }
+
+    private String evaluatedate(String func,String extension)
+    {
+        return "";
+    }
+
+    public String fn_dlist(String formid, String fieldid, String matchingField,
+                          String matchingFieldIds,String dlistid, String dlistformid){
+
+        String url = "";
+        List<DList> dlist = DListFormActivity.dlistFieldValues;
+        EncodeURIEngine encodeURIEngine = new EncodeURIEngine();
+        matchingField= encodeURIEngine.encodeURIComponent(matchingField);
+
+        String fieldId = "field"+fieldid+dlistid;
+        String fieldValue = "";
+        for(int i =0; i < dlist.size(); i++){
+            DList obj = dlist.get(i);
+            if(obj.getId().equals(fieldId)){
+                if(obj.getFieldType().toLowerCase().equals("checkbox")){
+                    fieldValue = obj.getValue();
+                }else{
+                    fieldValue = encodeURIEngine.encodeURIComponent(obj.getValue());
+                }
+                break;
+            }
+        }
+
+        if (!fieldValue.equals(""))
+        {
+            String[] arr = matchingFieldIds.split("/");
+            String value="";
+            String matchingFieldValues="";
+
+            for(int i=0;i<arr.length; i++) {
+                if ("".equals(arr[i])) continue;
+                boolean isDListFieldFound = false;
+                for (int j = 0; j < dlist.size(); j++) {
+                    DList jObj = dlist.get(j);
+                    if (jObj.getId().equals("field" + arr[i] + dlistid)) {
+                        value = jObj.getValue();
+                        matchingFieldValues = matchingFieldValues + value + "@@";
+                        isDListFieldFound = true;
+                        break;
+                    }
+                }//end of j for loop
+
+                //check in parent
+                if (!isDListFieldFound) {
+                    List<Field> fieldList = FormFragment.fieldsList;
+                    for (int k = 0; k < fieldList.size(); k++) {
+                        Field kObj = fieldList.get(k);
+                        if (kObj.getId().equals("field" + arr[i])) {
+                            value = kObj.getValue();
+                            matchingFieldValues = matchingFieldValues + value + "@@";
+                            break;
+                        }
+                    }//end of k for loop
+                }
+            }//end of i forloop
+
+            matchingFieldValues = encodeURIEngine.encodeURIComponent(matchingFieldValues);
+            matchingFieldValues = matchingFieldValues.replace("\\+","%2B");
+            matchingFieldValues = matchingFieldValues.replace("\\&","%26");
+
+
+             url =  retrieveString3(mPrefManager.getClientServerUrl()+"SaveFormField.do?actn=fetchDlistField&dlistformid="+dlistformid+"&&dlistid="+dlistid+"&formid="+formid+"&fieldid="+fieldid+"&fieldValue="+fieldValue+"&matchingField="+matchingField+"&matchingFieldValues="+matchingFieldValues+"&ask=COMMAND_NAME_1&cloudcode="+mPrefManager.getCloudCode()+"&token="+mPrefManager.getAuthToken()+"&type=json","reportForm1","fetchstr");
+            Log.e("DlistFunctionHelper","fndlist URL = "+url);
+        }
+        return url;
+    }
+
+    public static String retrieveString3(String surl, String reportForm1, String s1) {
+        Double randomnumber = Math.floor(Math.random() * 1111);
+        surl = surl + "&random=" + randomnumber;//+getFormAsString(nameOfFormToPost);
+        return surl;
+    }
+
+    public void totaldlist(String id,String fieldid,String dlistid,String doround){
+        //Todo: Pending dont know how to handle this as of now
+        //not to sum if next100 is there
+      //  if(document.getElementById('dlistnext100_'+dlistid) && document.getElementById('dlistnext100_'+dlistid).innerHTML!='') return true;
+
+        double sum =0;
+        double value=0;
+        String contentrowscount = "";
+        dlistid = "field"+dlistid;
+
+
+       int dlistArrayPostion = FormFragment.dlistArrayPosition;
+        List<Field> dlistArray =  FormFragment.fieldsList.get(dlistArrayPostion).getdListArray();
+
+       for (int i=0; i<dlistArray.size(); i++){
+           Field field = dlistArray.get(i);
+
+            if(dlistid.matches(field.getId())){
+             int dlistFieldValuesCount = dlistArray.get(i).getDListItemList().size();
+                for(int j = 1; j<=dlistFieldValuesCount; j++){
+                    contentrowscount= contentrowscount+j+",";
+                }
+                break;
+            }
+        }
+        String[] contentarr= contentrowscount.split(",");
+        Log.e("totaldlist #590",id + "--" + fieldid+ "--" + dlistid+"--"+doround);
+        Log.e("contentarr",String.valueOf(contentarr));
+
+       for(int i=0;i<contentarr.length;i++){
+           String vreplace = "";
+           for (int j=0; j<dlistArray.size(); j++){
+               Field field = dlistArray.get(j);
+               if(dlistid.matches(field.getId())){
+                   List<DListItem> dlistValuesArray = dlistArray.get(j).getDListItemList();
+                   for(int k=0; k<dlistValuesArray.size();k++){
+                       List<DList> dlistRowFields = dlistValuesArray.get(k).getDlistArray();
+                     //  boolean fieldfound = false;
+                       for(int m = 0; m<dlistRowFields.size(); m++){
+                           DList dlistRowObj = dlistRowFields.get(m);
+                           if(dlistRowObj.getId().matches("field"+fieldid+"_"+contentarr[i])){
+
+                               vreplace = dlistRowObj.getValue();
+                               Log.e("line# 607","Field Found"+ vreplace);
+                               break;
+                           }
+                       }
+                   }
+                   break;
+               }
+           }
+
+           Log.e("totaldlist line# 616", vreplace);
+
+           int vlength = vreplace.length();
+           if(vlength > 7 && vreplace.lastIndexOf(",")==(vlength-7) && vreplace.lastIndexOf(".")==(vlength-3)) vreplace = vreplace.replace(",", "");
+           else if(vlength > 8 && vreplace.lastIndexOf(",")==(vlength-8) && vreplace.lastIndexOf(".")==(vlength-4)) vreplace = vreplace.replace(",", "");
+
+           try{
+
+               if (!vreplace.equals(""))
+               {
+                   value= (Double.parseDouble(vreplace)*1);
+                   sum = sum + value;
+               }else{
+                   return;
+               }
+               }catch (NumberFormatException e){
+                   e.printStackTrace();
+               }
+
+       }//end of for contentarr
+
+        try{
+
+            for(int i=0; i< FormFragment.fieldsList.size(); i++){
+                Field field = FormFragment.fieldsList.get(i);
+                if(field.getId().matches("field"+id)){
+                    if(!field.getValue().equals(sum)){
+                        if(!doround.isEmpty()&&doround.equals("0.00")){
+                          //  Todo
+//                            document.getElementById('field'+id).value = Math.round(Math.round(sum*100)/100)+".00";//Math.round((sum))+".00";
+//                            formatDouble(id);
+                            sum = Math.round(Math.round(sum*100)/100);
+                            field.setValue(String.valueOf(sum));
+                            Log.e("totaldlist line# 643", String.valueOf(sum));
+                            //formatDouble(id);
+                        }else if(!doround.isEmpty()&&doround.equals("0.000")){
+                            double s = Math.round((sum)*1000);
+                            sum = s/100;
+                            field.setValue(String.valueOf(sum));
+                            Log.e("totaldlist line# 648", String.valueOf(sum));
+
+                        }else if(!doround.isEmpty()&& doround.equals("0.0000")){
+                            double s = Math.round((sum)*10000000000L);
+                            sum = s/10000000000L;
+                            field.setValue(String.valueOf(sum));
+                            Log.e("totaldlist line# 653", String.valueOf(sum));
+                        } else{
+                            double s = Math.round((sum)*100);
+                            sum = s/100;
+                            field.setValue(String.valueOf(sum));
+                            Log.e("totaldlist line# 657", String.valueOf(sum));
+                         //   formatdouble(id);
+                        }
+
+                        Log.e("DlistFunctionHelper","#line 678 sum = " + sum);
+                        break;
+                    }
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void onDestroy() {
+        if(context != null) {
+            context = null;
+        }
+    }
+
+}
+
+

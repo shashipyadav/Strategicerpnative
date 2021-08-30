@@ -1,0 +1,567 @@
+package com.example.myapplication.user_interface.home.model;
+
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Product implements Serializable {
+
+
+    @SerializedName("itemID")
+    private String itemId;
+
+    @SerializedName("SizeName")
+    private String size;
+
+    @SerializedName("Width")
+    private String width;
+
+    @SerializedName("DesignName")
+    private String design;
+
+    @SerializedName("Height")
+    private String height;
+
+    @SerializedName("Length")
+    private String length="";
+
+    @SerializedName("itm_cd")
+    private String itemCode;
+
+    @Expose(deserialize = false)
+    private String hsCode;
+
+    @SerializedName("SurfaceName")
+    private String surface;
+
+    @SerializedName("itm_cat")
+    private String itemCategory;
+
+    @SerializedName("itm_grp")
+    private String itemGroup;
+
+    @SerializedName("mat_typ")
+    private String materialType;
+
+    @SerializedName("ABCName")
+    private String abcCode;
+
+    @SerializedName("CategoryName")
+    private String category;
+
+    @Expose(deserialize = false)
+    private String skuCode;
+
+    @Expose(deserialize = false)
+    private String skuName;
+
+
+    private String vertical;
+
+    @SerializedName("itm_desc")
+    private String itemDesc;
+
+    @SerializedName("pri_unit")
+    private String priUnit;
+
+    @Expose(deserialize = false)
+    private String m2PerBox;
+
+    @Expose(deserialize = false)
+    private String materialItemCode;
+
+    @SerializedName("DesignCode")
+    private String designCode;
+
+    @Expose(deserialize = false)
+    private String ft2PerBox;
+
+    @SerializedName("LaunchYear")
+    private String launchYear;
+
+    @SerializedName("PCsperBox")
+    private String piecePerBox;
+
+    @SerializedName("GrossWeight")
+    private String grossWeight;
+
+    @SerializedName("QualityCode")
+    private String qualityCode;
+
+    @SerializedName("SubCategoryName")
+    private String subCategory;
+
+    @SerializedName("SurfaceCode")
+    private String surfaceCode;
+
+    @SerializedName("CategoryCode")
+    private String categoryCode;
+
+    @SerializedName("SupplierCode")
+    private String supplierCode;
+
+    @SerializedName("VerticalCode")
+    private String verticalCode;
+
+    @SerializedName("VerticalName")
+    private String verticalName;
+
+    @SerializedName("WarehouseCode")
+    private String wareHouseCode;
+
+    @SerializedName("BillingUOMCode")
+    private String billingUomCode;
+
+    @SerializedName("StorageUOMCode")
+    private String StorageUomCode;
+
+    @SerializedName("OrderingUOMCode")
+    private String orderingUomCode;
+
+    @SerializedName("Image_Thumbnail")
+    private String imageThumbnail;
+
+    @SerializedName("Image_FullView")
+    private List<String> imageFullView;
+
+    @SerializedName("Document_Brochure")
+    private String documentBrochure;
+
+    @SerializedName("Document_TechnicalDocument")
+    private String technicalDocument;
+
+    @SerializedName("Video_SD")
+    private String videoSd;
+
+    @SerializedName("Video_HD")
+    private String videoHd;
+
+    public Product(){
+        this("");
+    }
+
+    public Product(String productImage){
+       this("0", "", "0", "",
+               "0", "0", "","",
+               "", "", "",
+               "", "", "",
+               "", "", "",
+               "", "", "",
+               "", "", "",
+               "", "", "",
+               "", "", "",
+               "", "", "",
+               "", "","",
+               "", "", "",
+              new ArrayList<String>(), "",
+               "", "", "");
+    }
+
+    public Product(String itemId, String size, String width, String design,
+                   String height, String length, String itemCode, String hsCode,
+                   String surface, String itemCategory, String itemGroup,
+                   String materialType, String abcCode, String category,
+                   String skuCode, String skuName, String vertical,
+                   String itemDesc, String priUnit, String m2PerBox,
+                   String materialItemCode, String designCode, String ft2PerBox,
+                   String launchYear, String piecePerBox, String grossWeight,
+                   String qualityCode, String subCategory, String surfaceCode,
+                   String categoryCode, String supplierCode, String verticalCode,
+                   String verticalName, String wareHouseCode, String billingUomCode,
+                   String storageUomCode, String orderingUomCode, String imageThumbnail,
+                   List<String> imageFullView, String documentBrochure,
+                   String technicalDocument, String videoSd, String videoHd) {
+
+        this.itemId = itemId;
+        this.size = size;
+        this.width = width;
+        this.design = design;
+        this.height = height;
+        this.length = length;
+        this.itemCode = itemCode;
+        this.hsCode = hsCode;
+        this.surface = surface;
+        this.itemCategory = itemCategory;
+        this.itemGroup = itemGroup;
+        this.materialType = materialType;
+        this.abcCode = abcCode;
+        this.category = category;
+        this.skuCode = skuCode;
+        this.skuName = skuName;
+        this.vertical = vertical;
+        this.itemDesc = itemDesc;
+        this.priUnit = priUnit;
+        this.m2PerBox = m2PerBox;
+        this.materialItemCode = materialItemCode;
+        this.designCode = designCode;
+        this.ft2PerBox = ft2PerBox;
+        this.launchYear = launchYear;
+        this.piecePerBox = piecePerBox;
+        this.grossWeight = grossWeight;
+        this.qualityCode = qualityCode;
+        this.subCategory = subCategory;
+        this.surfaceCode = surfaceCode;
+        this.categoryCode = categoryCode;
+        this.supplierCode = supplierCode;
+        this.verticalCode = verticalCode;
+        this.verticalName = verticalName;
+        this.wareHouseCode = wareHouseCode;
+        this.billingUomCode = billingUomCode;
+        StorageUomCode = storageUomCode;
+        this.orderingUomCode = orderingUomCode;
+        this.imageThumbnail = imageThumbnail;
+        this.imageFullView = imageFullView;
+        this.documentBrochure = documentBrochure;
+        this.technicalDocument = technicalDocument;
+        this.videoSd = videoSd;
+        this.videoHd = videoHd;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
+    }
+
+    public String getWidth() {
+        return width;
+    }
+
+    public void setWidth(String width) {
+        this.width = width;
+    }
+
+    public String getDesign() {
+        return design;
+    }
+
+    public void setDesign(String design) {
+        this.design = design;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getLength() {
+        return length;
+    }
+
+    public void setLength(String length) {
+        this.length = length;
+    }
+
+    public String getItemCode() {
+        return itemCode;
+    }
+
+    public void setItemCode(String itemCode) {
+        this.itemCode = itemCode;
+    }
+
+    public String getHsCode() {
+        return hsCode;
+    }
+
+    public void setHsCode(String hsCode) {
+        this.hsCode = hsCode;
+    }
+
+    public String getSurface() {
+        return surface;
+    }
+
+    public void setSurface(String surface) {
+        this.surface = surface;
+    }
+
+    public String getItemCategory() {
+        return itemCategory;
+    }
+
+    public void setItemCategory(String itemCategory) {
+        this.itemCategory = itemCategory;
+    }
+
+    public String getItemGroup() {
+        return itemGroup;
+    }
+
+    public void setItemGroup(String itemGroup) {
+        this.itemGroup = itemGroup;
+    }
+
+    public String getMaterialType() {
+        return materialType;
+    }
+
+    public void setMaterialType(String materialType) {
+        this.materialType = materialType;
+    }
+
+    public String getAbcCode() {
+        return abcCode;
+    }
+
+    public void setAbcCode(String abcCode) {
+        this.abcCode = abcCode;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getSkuCode() {
+        return skuCode;
+    }
+
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
+    }
+
+    public String getSkuName() {
+        return skuName;
+    }
+
+    public void setSkuName(String skuName) {
+        this.skuName = skuName;
+    }
+
+    public String getVertical() {
+        return vertical;
+    }
+
+    public void setVertical(String vertical) {
+        this.vertical = vertical;
+    }
+
+    public String getItemDesc() {
+        return itemDesc;
+    }
+
+    public void setItemDesc(String itemDesc) {
+        this.itemDesc = itemDesc;
+    }
+
+    public String getPriUnit() {
+        return priUnit;
+    }
+
+    public void setPriUnit(String priUnit) {
+        this.priUnit = priUnit;
+    }
+
+    public String getM2PerBox() {
+        return m2PerBox;
+    }
+
+    public void setM2PerBox(String m2PerBox) {
+        this.m2PerBox = m2PerBox;
+    }
+
+    public String getMaterialItemCode() {
+        return materialItemCode;
+    }
+
+    public void setMaterialItemCode(String materialItemCode) {
+        this.materialItemCode = materialItemCode;
+    }
+
+    public String getDesignCode() {
+        return designCode;
+    }
+
+    public void setDesignCode(String designCode) {
+        this.designCode = designCode;
+    }
+
+    public String getFt2PerBox() {
+        return ft2PerBox;
+    }
+
+    public void setFt2PerBox(String ft2PerBox) {
+        this.ft2PerBox = ft2PerBox;
+    }
+
+    public String getLaunchYear() {
+        return launchYear;
+    }
+
+    public void setLaunchYear(String launchYear) {
+        this.launchYear = launchYear;
+    }
+
+    public String getPiecePerBox() {
+        return piecePerBox;
+    }
+
+    public void setPiecePerBox(String piecePerBox) {
+        this.piecePerBox = piecePerBox;
+    }
+
+    public String getGrossWeight() {
+        return grossWeight;
+    }
+
+    public void setGrossWeight(String grossWeight) {
+        this.grossWeight = grossWeight;
+    }
+
+    public String getSubCategory() {
+        return subCategory;
+    }
+
+    public void setSubCategory(String subCategory) {
+        this.subCategory = subCategory;
+    }
+
+    public String getSurfaceCode() {
+        return surfaceCode;
+    }
+
+    public void setSurfaceCode(String surfaceCode) {
+        this.surfaceCode = surfaceCode;
+    }
+
+    public String getCategoryCode() {
+        return categoryCode;
+    }
+
+    public void setCategoryCode(String categoryCode) {
+        this.categoryCode = categoryCode;
+    }
+
+    public String getSupplierCode() {
+        return supplierCode;
+    }
+
+    public void setSupplierCode(String supplierCode) {
+        this.supplierCode = supplierCode;
+    }
+
+    public String getVerticalCode() {
+        return verticalCode;
+    }
+
+    public void setVerticalCode(String verticalCode) {
+        this.verticalCode = verticalCode;
+    }
+
+    public String getVerticalName() {
+        return verticalName;
+    }
+
+    public void setVerticalName(String verticalName) {
+        this.verticalName = verticalName;
+    }
+
+    public String getWareHouseCode() {
+        return wareHouseCode;
+    }
+
+    public void setWareHouseCode(String wareHouseCode) {
+        this.wareHouseCode = wareHouseCode;
+    }
+
+    public String getBillingUomCode() {
+        return billingUomCode;
+    }
+
+    public void setBillingUomCode(String billingUomCode) {
+        this.billingUomCode = billingUomCode;
+    }
+
+    public String getStorageUomCode() {
+        return StorageUomCode;
+    }
+
+    public void setStorageUomCode(String storageUomCode) {
+        StorageUomCode = storageUomCode;
+    }
+
+    public String getOrderingUomCode() {
+        return orderingUomCode;
+    }
+
+    public void setOrderingUomCode(String orderingUomCode) {
+        this.orderingUomCode = orderingUomCode;
+    }
+
+
+    public String getQualityCode() {
+        return qualityCode;
+    }
+
+    public void setQualityCode(String qualityCode) {
+        this.qualityCode = qualityCode;
+    }
+
+    public String getImageThumbnail() {
+        return imageThumbnail;
+    }
+
+    public void setImageThumbnail(String imageThumbnail) {
+        this.imageThumbnail = imageThumbnail;
+    }
+
+    public List<String> getImageFullView() {
+        return imageFullView;
+    }
+
+    public void setImageFullView(List<String> imageFullView) {
+        this.imageFullView = imageFullView;
+    }
+
+    public String getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(String itemId) {
+        this.itemId = itemId;
+    }
+
+    public String getDocumentBrochure() {
+        return documentBrochure;
+    }
+
+    public void setDocumentBrochure(String documentBrochure) {
+        this.documentBrochure = documentBrochure;
+    }
+
+    public String getTechnicalDocument() {
+        return technicalDocument;
+    }
+
+    public void setTechnicalDocument(String technicalDocument) {
+        this.technicalDocument = technicalDocument;
+    }
+
+    public String getVideoSd() {
+        return videoSd;
+    }
+
+    public void setVideoSd(String videoSd) {
+        this.videoSd = videoSd;
+    }
+
+    public String getVideoHd() {
+        return videoHd;
+    }
+
+    public void setVideoHd(String videoHd) {
+        this.videoHd = videoHd;
+    }
+}

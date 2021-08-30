@@ -1,0 +1,208 @@
+package com.example.myapplication.user_interface.pendingtask;
+
+import android.content.Context;
+import android.content.Intent;
+import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.myapplication.R;
+import com.example.myapplication.util.Constant;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class PendingTaskAdapter extends RecyclerView.Adapter<PendingTaskAdapter.ViewHolder>
+        implements Filterable {
+
+    private Context context;
+    private List<Task> pendingTaskList;
+    ValueFilter valueFilter;
+    List<Task> mFilterList;
+    private SparseBooleanArray selectedItems;
+ //   PendingTaskItemClickListener listener;
+
+
+    public PendingTaskAdapter(Context context, List<Task> pendingTaskList/*,
+                              PendingTaskItemClickListener mListener*/) {
+        if (pendingTaskList == null) {
+            throw new IllegalArgumentException("list must not be null");
+        }
+        this.context            = context;
+        this.pendingTaskList    = pendingTaskList;
+        this.mFilterList        = pendingTaskList;
+        this.selectedItems      = new SparseBooleanArray();
+       // this.listener           = mListener;
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater inflater = LayoutInflater.from(context);
+        // Inflate the custom layout
+        View view = inflater.inflate(R.layout.item_pending_task, parent, false);
+        // Return a new holder instance
+        ViewHolder viewHolder = new ViewHolder(view);
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+        final Task task = pendingTaskList.get(position);
+
+        if(task.getNameOfCompany().isEmpty() && task.getProjectName().isEmpty()){
+            holder.txtCompanyProject.setVisibility(View.GONE);
+        }else{
+            holder.txtCompanyProject.setVisibility(View.VISIBLE);
+        }
+
+        if(task.getTaskDetails().isEmpty()){
+            holder.txtTask.setVisibility(View.GONE);
+        }else{
+            holder.txtTask.setVisibility(View.VISIBLE);
+        }
+
+        holder.txtModule.setText(task.getModuleName());
+        holder.txtForm.setText(task.getFormName());
+        holder.txtAssignedBy.setText(task.getUserName());
+        holder.txtDateTime.setText(task.getShowDate());
+        holder.txtCompanyProject.setText(task.getNameOfCompany()+" | "+task.getProjectName());
+        holder.txtTask.setText(task.getTaskDetails());
+        holder.btnState.setText(task.getStateName());
+
+        if(task.isSelected()){
+            holder.txtChar.setVisibility(View.GONE);
+            holder.imgSelected.setVisibility(View.VISIBLE);
+        }else{
+            holder.txtChar.setVisibility(View.VISIBLE);
+            holder.imgSelected.setVisibility(View.GONE);
+        }
+
+        String userName = task.getUserName();
+        if(!userName.isEmpty()){
+            holder.txtChar.setText(userName.substring(0, 1));
+        }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent  intent = new Intent(context, PendingTaskDetailsActivity.class);
+                intent.putExtra(Constant.EXTRA_FORM_ID, task.getFormId());
+                intent.putExtra(Constant.EXTRA_RECORD_ID,task.getRecordId());
+                intent.putExtra(Constant.EXTRA_MODULE, task.getModuleName());
+                intent.putExtra(Constant.EXTRA_USER_NAME,task.getUserName());
+                intent.putExtra(Constant.EXTRA_FORM_NAME,task.getFormName());
+                context.startActivity(intent);
+            }
+        });
+
+        holder.txtChar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+    }
+
+    @Override
+    public int getItemCount() {
+        return pendingTaskList.size();
+    }
+
+    // Search
+    @Override
+    public Filter getFilter() {
+        if (valueFilter == null) {
+            valueFilter = new ValueFilter();
+        }
+        return valueFilter;
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder{
+
+        TextView txtModule, txtForm, txtAssignedBy,txtDateTime,txtCompanyProject, txtTask,txtChar;
+        Button btnState,btnMore;
+        ImageView imgSelected;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            txtModule           = itemView.findViewById(R.id.txt_module);
+            txtForm             = itemView.findViewById(R.id.txt_form);
+            txtAssignedBy       = itemView.findViewById(R.id.txt_assigned_by);
+            txtDateTime         = itemView.findViewById(R.id.txt_date_time);
+            txtCompanyProject   = itemView.findViewById(R.id.txt_company_project);
+            txtTask             = itemView.findViewById(R.id.txt_task);
+            txtChar             = itemView.findViewById(R.id.txt_char);
+            btnState            = itemView.findViewById(R.id.btn_state);
+            imgSelected         = itemView.findViewById(R.id.img_selected);
+        }
+    }
+
+    private class ValueFilter extends Filter{
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+
+            FilterResults results = new FilterResults();
+
+            if(constraint !=null && constraint.length() > 0){
+                List<Task> filterList = new ArrayList<>();
+                for (int i = 0; i < mFilterList.size(); i++) {
+
+                    if ((mFilterList.get(i).getModuleName().toUpperCase())
+                            .contains(constraint.toString().toUpperCase()) ||
+
+                            mFilterList.get(i).getFormName().toUpperCase()
+                                    .contains(constraint.toString().toUpperCase()) ||
+
+                            mFilterList.get(i).getUserName().toUpperCase()
+                                    .contains(constraint.toString().toUpperCase()) ||
+
+                            mFilterList.get(i).getNameOfCompany().toUpperCase()
+                                    .contains(constraint.toString().toUpperCase()) ||
+
+                            mFilterList.get(i).getProjectName().toUpperCase()
+                                    .contains(constraint.toString().toUpperCase()) ||
+
+                            mFilterList.get(i).getStateName().toUpperCase()
+                                    .contains(constraint.toString().toUpperCase()) ||
+
+                            mFilterList.get(i).getShowDate().toUpperCase()
+                                    .contains(constraint.toString().toUpperCase()) ||
+
+                            mFilterList.get(i).getTaskDetails().toUpperCase()
+                                    .contains(constraint.toString().toUpperCase()))
+
+                    {
+                        filterList.add(mFilterList.get(i));
+                    }
+                }
+                results.count = filterList.size();
+                results.values = filterList;
+            } else {
+                results.count = mFilterList.size();
+                results.values = mFilterList;
+            }
+
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            pendingTaskList = (List<Task>) results.values;
+            notifyDataSetChanged();
+        }
+    }
+}
+
+

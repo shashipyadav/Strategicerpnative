@@ -1,0 +1,15 @@
+package com.example.myapplication.helper;
+
+import android.view.Gravity;
+import android.widget.LinearLayout;
+
+public class CustomLayoutParams {
+
+    public static LinearLayout.LayoutParams getButtonLayoutParams(int left, int top, int right, int bottom){
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.CENTER;
+        params.setMargins(0, 0, 0, 0);
+        return params;
+    }
+}

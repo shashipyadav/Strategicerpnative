@@ -1,0 +1,87 @@
+package com.example.myapplication.user_interface.forms.helper;
+
+import android.app.Activity;
+import android.content.Context;
+import android.util.Log;
+import com.example.myapplication.user_interface.forms.controller.FormFragment;
+import com.example.myapplication.user_interface.forms.model.Field;
+import com.example.myapplication.util.DialogUtil;
+
+public class ValidateFormHelper {
+
+    private final String DEBUG_TAG = ValidateFormHelper.class.getSimpleName();
+    private Context context;
+
+    public ValidateFormHelper(Context context){
+        this.context = context;
+    }
+
+    public boolean areSaveRequiredFieldsValidated(){
+        boolean isValidated = true;
+                for (int k = 0; k < FormFragment.fieldsList.size(); k++) {
+                    Field kobj = FormFragment.fieldsList.get(k);
+
+                        if (kobj.getdListArray().isEmpty()) {
+                            //main Form
+                            if (kobj.getSaveRequired().toLowerCase().equals("true")) {
+
+                            if ((kobj.getValue().equals("0")) || (kobj.getValue().isEmpty())) {
+                                if (!kobj.getType().matches("hidden")) {
+                                    // ToastUtil.showToastMessage(kobj.getField_name() + "Can't be empty", getActivity());
+                                    // isFieldHidden = true;
+                                    // } else {
+//                                    selectedItem = k;
+                                    Log.e(DEBUG_TAG,"SaveRequired , Field Name = " + kobj.getFieldName());
+                                 //   kobj.setShowErrorMessage(true);
+                                    showErrorDialog(kobj.getFieldName());
+                                 //   final int finalK = k;
+
+
+//                                    if (context != null) {
+//                                        ((Activity)context).runOnUiThread(new Runnable() {
+//                                            @Override
+//                                            public void run() {
+//                                                FormFragment.adapter.notifyItemChanged(finalK);
+//                                            }
+//                                        });
+//                                    }
+                                    isValidated = false;
+                                    break;
+                                }
+                            } else {
+                               // kobj.setShowErrorMessage(false);
+                               // final int finalK1 = k;
+//                                if (context != null) {
+//                                    ((Activity)context).runOnUiThread(new Runnable() {
+//                                        @Override
+//                                        public void run() {
+//                                            FormFragment.adapter.notifyItemChanged(finalK1);
+//                                        }
+//                                    });
+//                                }
+                            }
+                        } else {
+                            //dlist Found
+                            //ToDo =search for save required in DList pending
+//                            dlistArray = kobj.getdListArray();
+//                            for (int m = 0; m < dlistArray.size(); m++) { // will loop through the dlistbuttonArray
+//                                Field dlist = dlistArray.get(m);
+//                                if (fieldId.matches(dlist.getId())) {
+//                                    //Display a toast saying this dlist can't be empty
+//                                    // For.eg Configuration Parameter is Empty
+//                                    ToastUtil.showToastMessage(dlist.getField_name() + "Can't be empty", getActivity());
+//                                    selectedItem = m;
+//                                    isFieldHidden = false;
+//                                    break;
+//                                }
+//                            }
+                        }
+                    }
+                }
+                return isValidated;
+            }
+
+    public void showErrorDialog(String fieldName){
+        DialogUtil.showAlertDialog((Activity) context, "",   fieldName+" can't be empty.", false, false);
+    }
+}
